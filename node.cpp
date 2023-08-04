@@ -140,7 +140,8 @@ node* node::internalInsert(node* root, node* parent, node* newLeft, node* newRig
 
     //reorganize left child pointers.
     int k = 0;
-    for(int i = 0; i < newLeftInternalNode->size + 2; i++)
+    bool foundCurr = false;
+    for(int i = 0; i < newLeftInternalNode->size + 1; i++)
     {
         //Node that was previously split.
         if(parentNode->child[i] == currentNode)
@@ -149,27 +150,44 @@ node* node::internalInsert(node* root, node* parent, node* newLeft, node* newRig
             newLeftInternalNode->child[i + 1] = newRight;
             i++;
             k++;
+            foundCurr = true;
         }
         else
         {
-            newLeftInternalNode->child[i] = parentNode->child[i];
+            if(foundCurr)
+            {
+                newLeftInternalNode->child[i] = parentNode->child[i - 1];
+            }
+            else
+            {
+                newLeftInternalNode->child[i] = parentNode->child[i];
+            }
             k++;
         }
     }
 
     //reorganize right child pointers.
+    foundCurr = false;
     for(int i = 0; i < newRightInternalNode->size + 1; i++)
     {
         //Node that was previously split.
-        if(parentNode->child[k - 1] == currentNode)
+        if(parentNode->child[k] == currentNode)
         {
             newRightInternalNode->child[i] = newLeft;
             newRightInternalNode->child[i + 1] = newRight;
             i++;
+            foundCurr = true;
         }
         else
         {
-            newRightInternalNode->child[i] = parentNode->child[i + ((maxNodes + 1)/2)];
+            if(foundCurr)
+            {
+                newRightInternalNode->child[i] = parentNode->child[i + ((maxNodes + 1)/2) - 1];
+            }
+            else
+            {
+                newRightInternalNode->child[i] = parentNode->child[i + ((maxNodes + 1)/2)];
+            }
         }
     }
 
