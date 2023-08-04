@@ -3,7 +3,8 @@
 //
 
 #include "bptree.h"
-#include <algorithm>
+#include "iostream"
+#include "vector"
 
 bptree::bptree(int deg)
 {
@@ -12,7 +13,7 @@ bptree::bptree(int deg)
     maxDegree = deg;
 }
 
-node *bptree::getRoot()
+node* bptree::getRoot()
 {
     //This method returns the root of the tree.
     return root;
@@ -44,9 +45,11 @@ void bptree::insert(gameData myGame)
         //Go to the correct leaf node.
         node* currentNode = root;
         node* parentNode = nullptr;
+        std::vector<node*> parentVector;
         while (!currentNode->leaf)
         {
             parentNode = currentNode;
+            parentVector.push_back(parentNode);
             for(int i = 0; i < currentNode->size; i++)
             {
                 //Check left child.
@@ -68,8 +71,7 @@ void bptree::insert(gameData myGame)
         //Case 1: Leaf is not full, insert.
         if(currentNode->size < maxNodes)
         {
-            currentNode->dataArray[1] = 15;
-            //currentNode->simpleInsert(rating); //FIXME
+            currentNode->simpleInsert(rating);
         }
         //Case 2: Leaf is full, insert and split.
         else
@@ -82,10 +84,6 @@ void bptree::insert(gameData myGame)
             for(int i = 0 ; i < maxNodes; i++)
             {
                 tempData[i] = currentNode->dataArray[i];
-                if(i == midPos)
-                {
-                    midValue = currentNode->dataArray[i];
-                }
             }
 
             //Get position to insert in.
@@ -95,7 +93,6 @@ void bptree::insert(gameData myGame)
                 if(tempData[i] < rating)
                 {
                     tempPos++;
-                    continue;
                 }
                 else
                 {
@@ -104,118 +101,93 @@ void bptree::insert(gameData myGame)
             }
 
             //Shift array to make space for new rating.
-            for(int i = tempPos + 1; i < maxNodes; i++)
+            for(int i = maxNodes; i > tempPos; i--)
             {
                 tempData[i] = tempData[i - 1];
             }
 
-            //Insert.
+            //Insert in temp array.
             tempData[tempPos] = rating;
+            midValue = tempData[maxDegree/2];
 
             //Split.
             node* newLeftLeaf = new node(maxNodes);
             node* newRightLeaf = new node(maxNodes);
-            for(int i = 0; i < maxNodes/2; i++)
+            for(int i = 0; i < maxDegree/2; i++)
             {
                 newLeftLeaf->dataArray[i] = tempData[i];
                 newLeftLeaf->size++;
             }
-            for(int i = maxNodes/2; i < maxNodes + 1; i++)
+            int j = 0;
+            for(int i = maxDegree/2; i < maxDegree; i++)
             {
-                newRightLeaf->dataArray[i] = tempData[i];
+                newRightLeaf->dataArray[j] = tempData[i];
                 newRightLeaf->size++;
+                j++;
             }
             newLeftLeaf->leaf = true;
             newRightLeaf->leaf = true;
 
             //Add to parent.
-            //Case 1: parent is not full, add and update pointers.
-            if(parentNode->size < maxNodes)
+            //Base case: current node is full root.
+            if(currentNode == root)
             {
-                //Add to parent
+                //Create new root.
+                node* newRoot = new node(maxNodes);
+                int pos = newRoot->simpleInsert(midValue);
+                newRoot->size = 1;
+                newRoot->leaf =false;
+                //Update pointers.
+                newRoot->child[0] = newLeftLeaf;
+                newRoot->child[1] = newRightLeaf;
+                newLeftLeaf->child[newLeftLeaf->size - 1] = newRightLeaf;
+                root = newRoot;
+            }
+            //Case 1: parent is not full, add and update pointers.
+            else if(parentNode->size < maxNodes)
+            {
+                //Add to parent.
                 int pos = parentNode->simpleInsert(midValue);
-
-                //Update pointers FIXME does this make sense?
-                parentNode->child[pos - 1] = newLeftLeaf;
-                parentNode->child[pos] = newRightLeaf;
+                //Update pointers.
+                parentNode->child[pos] = newLeftLeaf;
+                //Check for right leaf.
+                if(parentNode->child[pos + 1] == nullptr)
+                {
+                    parentNode->child[pos + 1] = newRightLeaf;
+                }
+                //There is a leaf at the right of pos.
+                else
+                {
+                    //shift child pointers to insert correctly
+                    for(int i = parentNode->size; i > pos; i--)
+                    {
+                        parentNode->child[i + 1] = parentNode->child[i];
+                    }
+                    parentNode->child[pos + 1] = newRightLeaf;
+                    newRightLeaf->child[newRightLeaf->size] = parentNode->child[pos + 2];
+                }
                 newLeftLeaf->child[newLeftLeaf->size - 1] = newRightLeaf;
             }
             //Case 2: parent is full, insert and split parent recursively until parent is not full or reached root node.
             else
             {
-                //FIXME CALL RECURSIVE METHOD HERE
-                //Base case: parent is root.
-                if(parentNode == root)
-                {
-                    //Temp insert.
-                    int rootTempData[maxNodes + 1];
-                    int rootMidPos = maxNodes/2, rootMidValue;
-                    for(int i = 0 ; i < maxNodes; i++)
-                    {
-                        rootTempData[i] = parentNode->dataArray[i];
-                        if(i == rootMidPos)
-                        {
-                            rootMidValue = parentNode->dataArray[i];
-                        }
-                    }
+                parentVector.pop_back();
+                root = currentNode->internalInsert(root, parentNode, newLeftLeaf, newRightLeaf, rating, midValue, parentVector);
+            }
+        }
+    }
+}
 
-                    //Get position to insert in.
-                    int tempRootPos = 0;
-                    for(int i = 0; i < maxNodes; i++)
-                    {
-                        if(rootTempData[i] < midValue)
-                        {
-                            tempRootPos++;
-                            continue;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-
-                    //Shift array to make space for new rating.
-                    for(int i = tempRootPos + 1; i < maxNodes; i++)
-                    {
-                        rootTempData[i] = rootTempData[i - 1];
-                    }
-
-                    //Insert.
-                    rootTempData[tempRootPos] = midValue;
-
-                    //Split root.
-                    node* newRoot = new node(maxNodes);
-                    int rootPos = newRoot->simpleInsert(rootMidValue);
-                    node* newRootLeftInternalNode = new node(maxNodes);
-                    node* newRootRightInternalNode = new node(maxNodes);
-                    for(int i = 0; i < maxNodes/2; i++)
-                    {
-                        newRootLeftInternalNode->dataArray[i] = rootTempData[i];
-                        newRootLeftInternalNode->size++;
-                    }
-                    for(int i = maxNodes/2; i < maxNodes + 1; i++)
-                    {
-                        newRootRightInternalNode->dataArray[i] = rootTempData[i];
-                        newRootRightInternalNode->size++;
-                    }
-                    newRootLeftInternalNode->leaf = false;
-                    newRootRightInternalNode->leaf = false;
-
-                    //Reorganize pointers.
-                    newRoot->child[rootPos - 1] = newRootLeftInternalNode; //FIXME AND VERSION ABOVE, WHAT IF POS IS 0
-                    newRoot->child[rootPos] = newRootRightInternalNode;
-                    newRoot->size = 1;
-                    newRoot->leaf = false;
-                    root = newRoot;
-                }
-                //Case 2: parent is internal node.
-                else
-                {
-                    //recursive call here.
-                    currentNode->internalInsert(0);
-                    node* newParent = new node(maxNodes);
-                    newParent->simpleInsert(midValue);
-                }
+void bptree::display(node* currNode) {
+    //This method displays the tree.
+    if (currNode != nullptr) {
+        for (int i = 0; i < currNode->size; i++) {
+            std::cout << currNode->dataArray[i] << " ";
+        }
+        std::cout << "\n";
+        if (!currNode->leaf) {
+            for (int i = 0; i < currNode->size + 1; i++) {
+                display(currNode->child[i]);
             }
         }
     }

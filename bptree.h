@@ -19,6 +19,7 @@ public:
     node* getRoot();
     int getDegree();
     void insert(gameData myGame);
+    void display(node *currNode); //FIXME
 };
 
 
