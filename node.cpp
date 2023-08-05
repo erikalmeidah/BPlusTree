@@ -4,12 +4,13 @@
 
 #include "node.h"
 #include "iostream"
+#include <utility>
 
 node::node(int maxNodes)
 {
     //This is the constructor for a node.
     degree = maxNodes + 1;
-    dataArray = new int[maxNodes];
+    dataArray = new gameData[maxNodes];
     child = new node*[degree];
     size = 0;
 }
@@ -20,16 +21,17 @@ int node::getDegree()
     return degree;
 }
 
-int node::simpleInsert(int rating)
+int node::simpleInsert(gameData myGame)
 {
     //This method inserts a game into the node's dataArray based on ascending rating order.
     int pos = 0;
     int maxNodes = degree - 1;
+    int rating = myGame.getRating();
 
     //Get position to insert in.
     for(int i = 0; i < size; i++)
     {
-        if(dataArray[i] < rating)
+        if(dataArray[i].getRating() < rating)
         {
             pos++;
         }
@@ -46,22 +48,23 @@ int node::simpleInsert(int rating)
     }
 
     //Insert.
-    this->dataArray[pos] = rating;
+    this->dataArray[pos] = myGame;
     size++;
     return pos;
 }
 
-node* node::internalInsert(node* root, node* parent, node* newLeft, node* newRight, int rating, int midVal, std::vector<node*> &parents)
+node* node::internalInsert(node* root, node* parent, node* newLeft, node* newRight, const gameData& myGame, gameData midVal, std::vector<node*> &parents)
 {
     //This method is used to recursively insert when internal nodes are full.
     node* parentNode = parent;
     node* currentNode = this;
     int maxNodes = parentNode->degree - 1;
-    int midValue = midVal;
+    gameData midValue = std::move(midVal);
 
     //root is not full
     if(parentNode->size < maxNodes && parentNode == root)
     {
+
         int pos = parentNode->simpleInsert(midValue);
         //Update pointers.
         parentNode->child[pos] = newLeft;
@@ -70,7 +73,7 @@ node* node::internalInsert(node* root, node* parent, node* newLeft, node* newRig
         {
             parentNode->child[pos + 1] = newRight;
         }
-            //There is a leaf at the right of pos.
+        //There is a leaf at the right of pos.
         else
         {
             //shift child pointers to insert correctly
@@ -84,8 +87,9 @@ node* node::internalInsert(node* root, node* parent, node* newLeft, node* newRig
     }
 
     //Temp insert.
-    int parentTempData[maxNodes + 1];
-    int parentMidPos = maxNodes / 2, parentMidValue;
+    gameData parentTempData[maxNodes + 1];
+    int parentMidPos = maxNodes / 2;
+    gameData parentMidValue;
     for(int i = 0 ; i < maxNodes; i++)
     {
         parentTempData[i] = parentNode->dataArray[i];
@@ -99,7 +103,7 @@ node* node::internalInsert(node* root, node* parent, node* newLeft, node* newRig
     int tempParentPos = 0;
     for(int i = 0; i < maxNodes; i++)
     {
-        if(parentTempData[i] < midValue)
+        if(parentTempData[i].getRating() < midValue.getRating())
         {
             tempParentPos++;
         }
@@ -109,7 +113,7 @@ node* node::internalInsert(node* root, node* parent, node* newLeft, node* newRig
         }
     }
 
-    //Shift array to make space for new rating.
+    //Shift array to make space for new myGame.
     for(int i = maxNodes; i > tempParentPos; i--)
     {
         parentTempData[i] = parentTempData[i - 1];
@@ -192,7 +196,7 @@ node* node::internalInsert(node* root, node* parent, node* newLeft, node* newRig
     }
 
     //Base case: parent is root.
-    if(parentNode == root)
+   if(parentNode == root)
     {
         //Root is full.
         //Reorganize parent.
@@ -212,5 +216,6 @@ node* node::internalInsert(node* root, node* parent, node* newLeft, node* newRig
             parents.pop_back();
         //Recursive call here.
         root = newParent->internalInsert(root, recursiveParent, newLeftInternalNode, newRightInternalNode, midValue, parentMidValue, parents);
+        return root;
     }
 }

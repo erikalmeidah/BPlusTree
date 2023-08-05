@@ -13,16 +13,16 @@ class node
 {
 public:
     bool leaf;
-    int* dataArray; //FIXME change to gameData later
+    gameData* dataArray;
     int size;
     int degree;
     node** child = nullptr;
 
-
+private:
     node(int maxNodes);
     int getDegree();
-    int simpleInsert(int rating);
-    node* internalInsert(node* root, node* parent, node* newLeft, node* newRight, int rating, int midVal, std::vector<node*> &parents);
+    int simpleInsert(gameData myGame);
+    node* internalInsert(node* root, node* parent, node* newLeft, node* newRight, const gameData& myGame, gameData midVal, std::vector<node*> &parents);
 
     friend class bptree; //No need for setters and getters.
 };

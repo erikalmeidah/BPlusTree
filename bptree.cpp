@@ -29,7 +29,7 @@ void bptree::insert(gameData myGame)
 {
     //This method inserts data on the tree, balancing it if necessary.
     int maxNodes = maxDegree - 1;
-    int rating = myGame.getRating(); //FIXME tree is currently only inserting the game rating
+    int rating = myGame.getRating();
 
     //Base case: root is empty.
     if(root == nullptr)
@@ -37,7 +37,7 @@ void bptree::insert(gameData myGame)
         root = new node(maxNodes);
         root->leaf = true;
         root->size = 1;
-        root->dataArray[0] = rating;
+        root->dataArray[0] = myGame;
     }
     //Root is not empty.
     else
@@ -53,7 +53,7 @@ void bptree::insert(gameData myGame)
             for(int i = 0; i < currentNode->size; i++)
             {
                 //Check left child.
-                if(rating < currentNode->dataArray[i])
+                if(rating < currentNode->dataArray[i].getRating())
                 {
                     currentNode = currentNode->child[i];
                     break;
@@ -71,14 +71,15 @@ void bptree::insert(gameData myGame)
         //Case 1: Leaf is not full, insert.
         if(currentNode->size < maxNodes)
         {
-            currentNode->simpleInsert(rating);
+            currentNode->simpleInsert(myGame);
         }
         //Case 2: Leaf is full, insert and split.
         else
         {
             //Temp insert.
-            int tempData[maxNodes + 1];
-            int midPos = maxNodes/2, midValue;
+            gameData tempData[maxNodes + 1];
+            int midPos = maxNodes/2;
+            gameData midValue;
 
             //Populate temp array.
             for(int i = 0 ; i < maxNodes; i++)
@@ -90,7 +91,7 @@ void bptree::insert(gameData myGame)
             int tempPos = 0;
             for(int i = 0; i < maxNodes; i++)
             {
-                if(tempData[i] < rating)
+                if(tempData[i].getRating() < rating)
                 {
                     tempPos++;
                 }
@@ -107,7 +108,7 @@ void bptree::insert(gameData myGame)
             }
 
             //Insert in temp array.
-            tempData[tempPos] = rating;
+            tempData[tempPos] = myGame;
             midValue = tempData[maxDegree/2];
 
             //Split.
@@ -172,22 +173,7 @@ void bptree::insert(gameData myGame)
             else
             {
                 parentVector.pop_back();
-                root = currentNode->internalInsert(root, parentNode, newLeftLeaf, newRightLeaf, rating, midValue, parentVector);
-            }
-        }
-    }
-}
-
-void bptree::display(node* currNode) {
-    //This method displays the tree.
-    if (currNode != nullptr) {
-        for (int i = 0; i < currNode->size; i++) {
-            std::cout << currNode->dataArray[i] << " ";
-        }
-        std::cout << "\n";
-        if (!currNode->leaf) {
-            for (int i = 0; i < currNode->size + 1; i++) {
-                display(currNode->child[i]);
+                root = currentNode->internalInsert(root, parentNode, newLeftLeaf, newRightLeaf, myGame, midValue, parentVector);
             }
         }
     }

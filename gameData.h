@@ -11,13 +11,16 @@
 class gameData
 {
     int rating;
-    std::string genre = "Action-Adventure";
-    std::string name = "Shadow of the Colossus";
+    std::string genre;
+    std::string name;
 
 public:
+    gameData();
+    gameData(int rating, std::string name, std::string genre);
     gameData(int rating);
     int getRating();
-    void setRating(int score);
+    std::string getName();
+    std::string getGenre();
 };
 
 
