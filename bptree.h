@@ -20,7 +20,6 @@ public:
     int getDegree();
     void insert(gameData myGame);
     std::vector<gameData> getTop10(node* root);
-    void displayTree(node* root); //FIXME delete me later, not my code xd
 };
 
 

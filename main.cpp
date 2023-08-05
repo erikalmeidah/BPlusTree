@@ -15,12 +15,15 @@ int main() {
         node.insert(gameData(i));
     }
     std::cout << "\nfinished inserting\n";
-    node.displayTree(node.getRoot());
+    //node.displayTree(node.getRoot());
     std::vector<gameData> top10 = node.getTop10(node.getRoot());
     std::cout << "\n";
+    std::cout << "Top 10 game reccomendations based on your Steam profile: \n\n";
+    int i = 1;
     for(auto member : top10)
     {
-        std::cout << member.getRating() << " ";
+        std::cout << i << " - Name: " << member.getName() << " Genres: " << member.getGenre() << " Rating: " << member.getRating() << std::endl;
+        i++;
     }
 
     //Create tree (TESTING INSERTS)

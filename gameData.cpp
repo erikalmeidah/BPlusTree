@@ -34,6 +34,8 @@ gameData::gameData(int rating)
 {
     //This method is a constructor that only takes in a rating value. Used for testing.
     this->rating = rating;
+    this->genre = "Action-Adventure";
+    this->name = "Shadow of the Colossus";
 }
 
 gameData::gameData()

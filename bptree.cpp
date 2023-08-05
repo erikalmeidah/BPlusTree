@@ -176,22 +176,6 @@ void bptree::insert(gameData myGame)
     }
 }
 
-void bptree::displayTree(node *root) //FIXME delete me later
-{
-    //This method displays the tree.
-    if (root != NULL) {
-        for (int i = 0; i < root->size; i++) {
-            std::cout << root->dataArray[i].getRating() << " ";
-        }
-        std::cout << "\n";
-        if (root->leaf != true) {
-            for (int i = 0; i < root->size + 1; i++) {
-                displayTree(root->child[i]);
-            }
-        }
-    }
-}
-
 std::vector<gameData> bptree::getTop10(node *root)
 {
     //This method returns the 10 games with the highest ratings on the tree.
