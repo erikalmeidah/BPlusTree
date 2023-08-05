@@ -141,7 +141,6 @@ void bptree::insert(gameData myGame)
                 //Update pointers.
                 newRoot->child[0] = newLeftLeaf;
                 newRoot->child[1] = newRightLeaf;
-                newLeftLeaf->child[newLeftLeaf->size - 1] = newRightLeaf;
                 root = newRoot;
             }
             //Case 1: parent is not full, add and update pointers.
@@ -165,9 +164,7 @@ void bptree::insert(gameData myGame)
                         parentNode->child[i + 1] = parentNode->child[i];
                     }
                     parentNode->child[pos + 1] = newRightLeaf;
-                    newRightLeaf->child[newRightLeaf->size] = parentNode->child[pos + 2];
                 }
-                newLeftLeaf->child[newLeftLeaf->size - 1] = newRightLeaf;
             }
             //Case 2: parent is full, insert and split parent recursively until parent is not full or reached root node.
             else
