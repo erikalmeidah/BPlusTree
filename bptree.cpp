@@ -181,7 +181,7 @@ std::vector<gameData> bptree::getTop10(node *root)
     //This method returns the 10 games with the highest ratings on the tree.
     std::vector<gameData> top10;
 
-    //Go to the leftmost leaf node.
+    //Go to the rightmost leaf node.
     node* currentNode = root;
     node* prevNode = nullptr;
     std::vector<node*> parents;
