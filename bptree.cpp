@@ -178,3 +178,80 @@ void bptree::insert(gameData myGame)
         }
     }
 }
+
+void bptree::displayTree(node *root) //FIXME delete me later
+{
+    //This method displays the tree.
+    if (root != NULL) {
+        for (int i = 0; i < root->size; i++) {
+            std::cout << root->dataArray[i].getRating() << " ";
+        }
+        std::cout << "\n";
+        if (root->leaf != true) {
+            for (int i = 0; i < root->size + 1; i++) {
+                displayTree(root->child[i]);
+            }
+        }
+    }
+}
+
+std::vector<gameData> bptree::getTop10(node *root)
+{
+    //This method returns the 10 games with the highest ratings on the tree.
+    std::vector<gameData> top10;
+
+    //Go to the leftmost leaf node.
+    node* currentNode = root;
+    node* prevNode = nullptr;
+    std::vector<node*> parents;
+    while (!currentNode->leaf)
+    {
+        prevNode = currentNode;
+        parents.push_back(prevNode);
+        currentNode = currentNode->child[0];
+    }
+
+    //retrieve top 10.
+    int i = 0;
+    int elements = 0;
+    int childPos = 0;
+    int grandpaPos = 0;
+    while(elements != 10)
+    {
+        node* currGrandpa = parents[parents.size() - 2 > - 1 ? parents.size() - 2 : 0];
+        if(grandpaPos >= currGrandpa->size)
+        {
+            grandpaPos = 0;
+        }
+        if(i > currentNode->size - 1) //no more children on leaf node
+        {
+            if(childPos >= prevNode->size)//if at last leaf node
+            {
+                childPos = 0;
+                i = 0;
+                parents.pop_back();
+                grandpaPos++;
+                currentNode = parents.back()->child[grandpaPos];
+                if(!currentNode->leaf)
+                {
+                    parents.push_back(currentNode);
+                    prevNode = currentNode;
+                    currentNode = currentNode->child[childPos];
+                }
+            }
+            else
+            {
+                childPos++;
+                currentNode = parents.back()->child[childPos];
+                i = 0;
+            }
+        }
+        else
+        {
+            top10.push_back(currentNode->dataArray[i]);
+            elements++;
+            i++;
+        }
+    }
+    return top10;
+}

@@ -64,7 +64,6 @@ node* node::internalInsert(node* root, node* parent, node* newLeft, node* newRig
     //root is not full
     if(parentNode->size < maxNodes && parentNode == root)
     {
-
         int pos = parentNode->simpleInsert(midValue);
         //Update pointers.
         parentNode->child[pos] = newLeft;
