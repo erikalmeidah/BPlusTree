@@ -189,11 +189,11 @@ std::vector<gameData> bptree::getTop10(node *root)
     {
         prevNode = currentNode;
         parents.push_back(prevNode);
-        currentNode = currentNode->child[0];
+        currentNode = currentNode->child[currentNode->size];
     }
 
     //retrieve top 10.
-    int i = 0;
+    int i = currentNode->size - 1;
     int elements = 0;
     int childPos = 0;
     int grandpaPos = 0;
@@ -231,7 +231,7 @@ std::vector<gameData> bptree::getTop10(node *root)
         {
             top10.push_back(currentNode->dataArray[i]);
             elements++;
-            i++;
+            i--;
         }
     }
     return top10;

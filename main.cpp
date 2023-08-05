@@ -12,13 +12,12 @@ int main() {
 
     for(int i = 0; i < 100000; i++)
     {
-        node.insert(gameData(i));
+        node.insert(gameData(i, "myName", "myGenre"));
     }
     std::cout << "\nfinished inserting\n";
     //node.displayTree(node.getRoot());
     std::vector<gameData> top10 = node.getTop10(node.getRoot());
-    std::cout << "\n";
-    std::cout << "Top 10 game reccomendations based on your Steam profile: \n\n";
+    std::cout << "\nTop 10 game recommendations based on your Steam profile: \n\n";
     int i = 1;
     for(auto member : top10)
     {
